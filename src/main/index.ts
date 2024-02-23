@@ -2,6 +2,53 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import fs from 'fs'
+import path from 'path'
+
+const sourceDir = 'E:/test'
+const maxFolderSize = 4.3 * 1024 * 1024 * 1024
+
+function readFiles(directory): { name: string; size: number; path: string }[] {
+  return fs
+    .readdirSync(directory)
+    .map((fileName) => {
+      const filePath = path.join(directory, fileName)
+      return {
+        name: fileName,
+        size: fs.statSync(filePath).size,
+        path: filePath
+      }
+    })
+    .filter((file) => file.size < maxFolderSize) // исключаем файлы больше 4.3 ГБ
+}
+
+function createFolder(folderName): void {
+  if (!fs.existsSync(folderName)) {
+    fs.mkdirSync(folderName)
+  }
+}
+
+function distributeFiles(files): void {
+  let folderIndex = 0
+  let currentFolderSize = 0
+
+  files.forEach((file) => {
+    if (currentFolderSize + file.size > maxFolderSize) {
+      folderIndex++
+      currentFolderSize = 0
+    }
+    const folderName = `E:/test/disk${folderIndex}`
+
+    createFolder(folderName)
+
+    const targetPath = path.join(folderName, file.name)
+    fs.renameSync(file.path, targetPath) // Перемещение файла
+
+    currentFolderSize += file.size
+  })
+}
+
+const files = readFiles(sourceDir).sort((a, b) => b.size - a.size)
 
 function createWindow(): void {
   // Create the browser window.
@@ -50,7 +97,7 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('ping', () => console.log('123'))
 
   createWindow()
 
