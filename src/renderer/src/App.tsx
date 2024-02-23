@@ -1,8 +1,8 @@
-import Versions from './components/Versions'
-
+import { useState } from 'react'
 function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  const ipcHandle = (): void => window.electron.ipcRenderer.send('distribute-files', maxFolderSize)
 
+  const [maxFolderSize, setMaxFolderSize] = useState(4.3) // Default value in GB
   return (
     <>
       <div className="creator">Powered by electron-vite</div>
@@ -13,19 +13,19 @@ function App(): JSX.Element {
       <p className="tip">
         Please try pressing <code>F12</code> to open the devTool
       </p>
+      <input
+        type="number"
+        value={maxFolderSize}
+        onChange={(e) => setMaxFolderSize(parseFloat(e.target.value))}
+      />
+
       <div className="actions">
         <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
           <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
+            Run function
           </a>
         </div>
       </div>
-      <Versions></Versions>
     </>
   )
 }

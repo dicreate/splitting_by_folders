@@ -50,6 +50,10 @@ function distributeFiles(files): void {
 
 const files = readFiles(sourceDir).sort((a, b) => b.size - a.size)
 
+ipcMain.on('distribute-files', (e, args) => {
+  console.log(e, args)
+})
+
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -97,7 +101,6 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => console.log('123'))
 
   createWindow()
 
