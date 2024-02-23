@@ -5,54 +5,6 @@ import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
 import path from 'path'
 
-const sourceDir = 'E:/test'
-
-function readFiles(directory, maxFolderSize): { name: string; size: number; path: string }[] {
-  return fs
-    .readdirSync(directory)
-    .map((fileName) => {
-      const filePath = path.join(directory, fileName)
-      return {
-        name: fileName,
-        size: fs.statSync(filePath).size,
-        path: filePath
-      }
-    })
-    .filter((file) => file.size < maxFolderSize) // исключаем файлы больше maxFolderSize
-}
-
-function createFolder(folderName): void {
-  if (!fs.existsSync(folderName)) {
-    fs.mkdirSync(folderName)
-  }
-}
-
-function distributeFiles(files, maxFolderSize): void {
-  let folderIndex = 0
-  let currentFolderSize = 0
-
-  files.forEach((file) => {
-    if (currentFolderSize + file.size > maxFolderSize) {
-      folderIndex++
-      currentFolderSize = 0
-    }
-    const folderName = `E:/test/disk${folderIndex}`
-
-    createFolder(folderName)
-
-    const targetPath = path.join(folderName, file.name)
-    fs.renameSync(file.path, targetPath) // Перемещение файла
-
-    currentFolderSize += file.size
-  })
-}
-
-ipcMain.on('distribute-files', async (_, maxSizeProp) => {
-  const maxSize = maxSizeProp * 1024 * 1024 * 1024
-  const files = readFiles(sourceDir, maxSize).sort((a, b) => b.size - a.size)
-  distributeFiles(files, maxSize)
-})
-
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -76,6 +28,60 @@ function createWindow(): void {
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
+  })
+
+  const sourceDir = 'E:/test'
+
+  // Реализация разбиения по папкам
+
+  // Функция чтения файлов с сортировкой
+  function readFiles(directory, maxFolderSize): { name: string; size: number; path: string }[] {
+    return fs
+      .readdirSync(directory)
+      .map((fileName) => {
+        const filePath = path.join(directory, fileName)
+        return {
+          name: fileName,
+          size: fs.statSync(filePath).size,
+          path: filePath
+        }
+      })
+      .filter((file) => file.size < maxFolderSize) // исключаем файлы больше maxFolderSize
+  }
+
+  // Создание папки, если папки не существует
+  function createFolder(folderName): void {
+    if (!fs.existsSync(folderName)) {
+      fs.mkdirSync(folderName)
+    }
+  }
+
+  // разбиение файлов по директориям
+  function distributeFiles(files, maxFolderSize): void {
+    let folderIndex = 0
+    let currentFolderSize = 0
+
+    files.forEach((file) => {
+      if (currentFolderSize + file.size > maxFolderSize) {
+        folderIndex++
+        currentFolderSize = 0
+      }
+      const folderName = `E:/test/disk${folderIndex}`
+
+      createFolder(folderName)
+
+      const targetPath = path.join(folderName, file.name)
+      fs.renameSync(file.path, targetPath) // Перемещение файла
+
+      currentFolderSize += file.size
+    })
+  }
+
+  // Реакция на событие distribute-files
+  ipcMain.on('distribute-files', async (_, maxSizeProp) => {
+    const maxSize = maxSizeProp * 1024 * 1024 * 1024
+    const files = readFiles(sourceDir, maxSize).sort((a, b) => b.size - a.size)
+    distributeFiles(files, maxSize)
   })
 
   // HMR for renderer base on electron-vite cli.
