@@ -6,9 +6,8 @@ import fs from 'fs'
 import path from 'path'
 
 const sourceDir = 'E:/test'
-const maxFolderSize = 4.3 * 1024 * 1024 * 1024
 
-function readFiles(directory): { name: string; size: number; path: string }[] {
+function readFiles(directory, maxFolderSize): { name: string; size: number; path: string }[] {
   return fs
     .readdirSync(directory)
     .map((fileName) => {
@@ -19,7 +18,7 @@ function readFiles(directory): { name: string; size: number; path: string }[] {
         path: filePath
       }
     })
-    .filter((file) => file.size < maxFolderSize) // исключаем файлы больше 4.3 ГБ
+    .filter((file) => file.size < maxFolderSize) // исключаем файлы больше maxFolderSize
 }
 
 function createFolder(folderName): void {
@@ -28,7 +27,7 @@ function createFolder(folderName): void {
   }
 }
 
-function distributeFiles(files): void {
+function distributeFiles(files, maxFolderSize): void {
   let folderIndex = 0
   let currentFolderSize = 0
 
@@ -48,10 +47,10 @@ function distributeFiles(files): void {
   })
 }
 
-const files = readFiles(sourceDir).sort((a, b) => b.size - a.size)
-
-ipcMain.on('distribute-files', (e, args) => {
-  console.log(e, args)
+ipcMain.on('distribute-files', async (_, maxSizeProp) => {
+  const maxSize = maxSizeProp * 1024 * 1024 * 1024
+  const files = readFiles(sourceDir, maxSize).sort((a, b) => b.size - a.size)
+  distributeFiles(files, maxSize)
 })
 
 function createWindow(): void {
@@ -60,11 +59,13 @@ function createWindow(): void {
     width: 900,
     height: 670,
     show: false,
+    resizable: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      nodeIntegration: false
     }
   })
 
