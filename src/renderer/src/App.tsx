@@ -27,37 +27,30 @@ function App(): JSX.Element {
   const DirectoryInput = (props: DirectoryInputProps): JSX.Element => <input {...props} />
 
   return (
-    <>
-      {/*    <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
+    <div className="flex flex-col gap-6">
+      <div>
+        <label className="label p-2">
+          <span className="text-base label-text text-gray-300">Размер папок (В ГБ)</span>
+        </label>
+        <input
+          className="input input-bordered input-info w-full max-w-xs bg-slate-700 text-lg"
+          type="number"
+          value={maxFolderSize}
+          onChange={(e) => setMaxFolderSize(parseFloat(e.target.value))}
+        />
       </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p> */}
-      <input
-        className="text-black"
-        type="number"
-        value={maxFolderSize}
-        onChange={(e) => setMaxFolderSize(parseFloat(e.target.value))}
-      />
       <DirectoryInput
         type="file"
         directory=""
         webkitdirectory=""
-        className="form-control"
+        className="file-input file-input-bordered file-input-info w-full max-w-xs bg-slate-700"
         ref={folderInput}
         onChange={handleFileChange}
       />
-      <div className="actions">
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandleFs}>
-            Run function
-          </a>
-        </div>
-      </div>
-    </>
+      <button className="btn btn-info uppercase" onClick={ipcHandleFs}>
+        Start
+      </button>
+    </div>
   )
 }
 
