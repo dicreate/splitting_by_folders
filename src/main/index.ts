@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
@@ -30,7 +31,7 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
-  const sourceDir = 'E:/test'
+  /*  const sourceDir = 'E:/test' */
 
   // Реализация разбиения по папкам
 
@@ -78,9 +79,9 @@ function createWindow(): void {
   }
 
   // Реакция на событие distribute-files
-  ipcMain.on('distribute-files', async (_, maxSizeProp) => {
+  ipcMain.on('distribute-files', async (_, maxSizeProp, currentDir) => {
     const maxSize = maxSizeProp * 1024 * 1024 * 1024
-    const files = readFiles(sourceDir, maxSize).sort((a, b) => b.size - a.size)
+    const files = readFiles(currentDir, maxSize).sort((a, b) => b.size - a.size)
     distributeFiles(files, maxSize)
   })
 
