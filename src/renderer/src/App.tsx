@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 
-type DirectoryInputProps = React.DetailedHTMLProps<
+/* type DirectoryInputProps = React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 > & {
   directory?: string
   webkitdirectory?: string
-}
+} */
 
 function App(): JSX.Element {
   const ipcHandleFs = (): void => {
@@ -22,7 +22,7 @@ function App(): JSX.Element {
     }
   }
 
-  const [maxFolderSize, setMaxFolderSize] = useState<number>(4.3) // Default value in GB
+  const [maxFolderSize, setMaxFolderSize] = useState<number>(4.7) // Default value in GB
   const [fileURL, setFileURL] = useState<string | null>(null)
   const folderInput = useRef(null)
 
@@ -34,8 +34,10 @@ function App(): JSX.Element {
     }
   }
 
-  const DirectoryInput = (props: DirectoryInputProps): JSX.Element => <input {...props} />
-
+  /*   const DirectoryInput = (props: DirectoryInputProps): JSX.Element => (
+      <input {...props} />
+    )
+   */
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -49,13 +51,13 @@ function App(): JSX.Element {
           onChange={(e) => setMaxFolderSize(parseFloat(e.target.value))}
         />
       </div>
-      <DirectoryInput
+      <input
         type="file"
         directory=""
         webkitdirectory=""
         className="file-input file-input-bordered file-input-info w-full max-w-xs bg-slate-700"
-        ref={folderInput}
         onChange={handleFileChange}
+        ref={folderInput}
       />
       <button className="btn btn-info uppercase" onClick={ipcHandleFs}>
         Start
