@@ -31,8 +31,6 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
-  /*  const sourceDir = 'E:/test' */
-
   // Реализация разбиения по папкам
 
   // Функция чтения файлов с сортировкой
@@ -58,7 +56,7 @@ function createWindow(): void {
   }
 
   // разбиение файлов по директориям
-  function distributeFiles(files, maxFolderSize): void {
+  function distributeFiles(files, maxFolderSize, dirURL): void {
     let folderIndex = 0
     let currentFolderSize = 0
 
@@ -67,7 +65,7 @@ function createWindow(): void {
         folderIndex++
         currentFolderSize = 0
       }
-      const folderName = `E:/test/disk${folderIndex}`
+      const folderName = `${dirURL}/disk${folderIndex}`
 
       createFolder(folderName)
 
@@ -79,10 +77,11 @@ function createWindow(): void {
   }
 
   // Реакция на событие distribute-files
-  ipcMain.on('distribute-files', async (_, maxSizeProp, currentDir) => {
+  ipcMain.on('distribute-files', async (_, maxSizeProp, fileURL) => {
     const maxSize = maxSizeProp * 1024 * 1024 * 1024
-    const files = readFiles(currentDir, maxSize).sort((a, b) => b.size - a.size)
-    distributeFiles(files, maxSize)
+    const dirURL = path.dirname(path.normalize(fileURL).replace(/\\/g, '/'))
+    const files = readFiles(dirURL, maxSize).sort((a, b) => b.size - a.size)
+    distributeFiles(files, maxSize, dirURL)
   })
 
   // HMR for renderer base on electron-vite cli.

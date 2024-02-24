@@ -1,19 +1,19 @@
 import { useRef, useState } from 'react'
-
 function App(): JSX.Element {
-  const ipcHandleFs = (): void => window.electron.ipcRenderer.send('distribute-files', maxFolderSize, folderURL)
+  const ipcHandleFs = (): void =>
+    window.electron.ipcRenderer.send('distribute-files', maxFolderSize, fileURL)
 
   const [maxFolderSize, setMaxFolderSize] = useState<number>(4.3) // Default value in GB
-  const [folderURL, setFolderURL] = useState<string | null>(null)
+  const [fileURL, setFileURL] = useState<string | null>(null)
   const folderInput = useRef(null)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const files = event.target.files
     if (files && files.length > 0) {
-      const folderPath = files[0].path
-      setFolderURL(folderPath)
+      const filePath = files[0].path
+      setFileURL(filePath)
     }
-  };
+  }
 
   return (
     <>
