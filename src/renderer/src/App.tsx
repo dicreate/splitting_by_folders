@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import toast, { Toaster } from 'react-hot-toast'
 
 type DirectoryInputProps = React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -9,8 +10,17 @@ type DirectoryInputProps = React.DetailedHTMLProps<
 }
 
 function App(): JSX.Element {
-  const ipcHandleFs = (): void =>
-    window.electron.ipcRenderer.send('distribute-files', maxFolderSize, fileURL)
+  const ipcHandleFs = (): void => {
+    if (fileURL && maxFolderSize) {
+      window.electron.ipcRenderer.send('distribute-files', maxFolderSize, fileURL)
+    } else if (!fileURL && isNaN(maxFolderSize)) {
+      toast.error('Выберите папку и введите размер папок')
+    } else if (isNaN(maxFolderSize)) {
+      toast.error('Введите размер папок')
+    } else {
+      toast.error('Выберите папку')
+    }
+  }
 
   const [maxFolderSize, setMaxFolderSize] = useState<number>(4.3) // Default value in GB
   const [fileURL, setFileURL] = useState<string | null>(null)
@@ -50,6 +60,7 @@ function App(): JSX.Element {
       <button className="btn btn-info uppercase" onClick={ipcHandleFs}>
         Start
       </button>
+      <Toaster />
     </div>
   )
 }

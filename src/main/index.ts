@@ -5,6 +5,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
 import path from 'path'
+import { error } from 'console'
 
 function createWindow(): void {
   // Create the browser window.
@@ -57,23 +58,27 @@ function createWindow(): void {
 
   // разбиение файлов по директориям
   function distributeFiles(files, maxFolderSize, dirURL): void {
-    let folderIndex = 0
-    let currentFolderSize = 0
+    try {
+      let folderIndex = 0
+      let currentFolderSize = 0
 
-    files.forEach((file) => {
-      if (currentFolderSize + file.size > maxFolderSize) {
-        folderIndex++
-        currentFolderSize = 0
-      }
-      const folderName = `${dirURL}/disk${folderIndex}`
+      files.forEach((file) => {
+        if (currentFolderSize + file.size > maxFolderSize) {
+          folderIndex++
+          currentFolderSize = 0
+        }
+        const folderName = `${dirURL}/disk${folderIndex}`
 
-      createFolder(folderName)
+        createFolder(folderName)
 
-      const targetPath = path.join(folderName, file.name)
-      fs.renameSync(file.path, targetPath) // Перемещение файла
+        const targetPath = path.join(folderName, file.name)
+        fs.renameSync(file.path, targetPath) // Перемещение файла
 
-      currentFolderSize += file.size
-    })
+        currentFolderSize += file.size
+      })
+    } catch (e) {
+      alert(error)
+    }
   }
 
   // Реакция на событие distribute-files
