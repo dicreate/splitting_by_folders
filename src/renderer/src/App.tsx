@@ -1,4 +1,13 @@
 import { useRef, useState } from 'react'
+
+type DirectoryInputProps = React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> & {
+  directory?: string
+  webkitdirectory?: string
+}
+
 function App(): JSX.Element {
   const ipcHandleFs = (): void =>
     window.electron.ipcRenderer.send('distribute-files', maxFolderSize, fileURL)
@@ -14,6 +23,8 @@ function App(): JSX.Element {
       setFileURL(filePath)
     }
   }
+
+  const DirectoryInput = (props: DirectoryInputProps): JSX.Element => <input {...props} />
 
   return (
     <>
@@ -31,7 +42,7 @@ function App(): JSX.Element {
         value={maxFolderSize}
         onChange={(e) => setMaxFolderSize(parseFloat(e.target.value))}
       />
-      <input
+      <DirectoryInput
         type="file"
         directory=""
         webkitdirectory=""
